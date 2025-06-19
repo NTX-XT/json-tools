@@ -1,0 +1,600 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "JSON Tools",
+        "description": "Useful JSON actions for Nintex Workflows. This API provides comprehensive JSON manipulation capabilities including serialization, deserialization, schema generation, object merging, and XML conversion. Perfect for workflow automation and data transformation tasks.",
+        "version": "1.0.0"
+    },
+    "x-ntx-render-version": 2,
+    "host": "localhost:7072",
+    "basePath": "/api",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json",
+        "text/plain"
+    ],
+    "security": [
+        {
+            "apiKey": []
+        }
+    ],
+    "paths": {
+        "/generate-schema": {
+            "post": {
+                "tags": [
+                    "JSON Tools"
+                ],
+                "summary": "Generate JSON Schema",
+                "x-ntx-summary": "Generate Schema",
+                "x-ntx-sublabel": "Create a JSON schema definition from any JSON string.",
+                "description": "Analyzes a JSON string and generates a comprehensive JSON schema definition. This endpoint understands nested objects, arrays, and primitive types, making it ideal for dynamic form generation and data validation. The generated schema follows JSON Schema Draft 7 specifications and can be used for validation, documentation, or UI generation.",
+                "operationId": "generate_schema",
+                "x-ntx-visibility": "internal",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "json",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "an unencoded json string",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully generated JSON schema",
+                        "schema": {
+                            "type": "string",
+                            "title": "Generated JSON Schema",
+                            "description": "A JSON Schema object that describes the structure and types of the input JSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON string provided",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string",
+                                    "example": "Invalid JSON format in request body"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing API key"
+                    },
+                    "500": {
+                        "description": "Internal server error during schema generation"
+                    }
+                }
+            }
+        },
+        "/serialize": {
+            "post": {
+                "tags": [
+                    "JSON Tools"
+                ],
+                "summary": "Serialize Object",
+                "x-ntx-summary": "Serialize to JSON",
+                "x-ntx-sublabel": "Convert any object or data structure into a JSON string.",
+                "description": "Converts a JavaScript object or complex data structure into its JSON string representation. This is essential for data storage, API communication, and workflow data transformation. The serialization process maintains all data types and nested structures while producing a compact, transferable string format.",
+                "operationId": "serialize",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "parameters",
+                        "required": true,
+                        "description": "Object to be serialized into JSON string format",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "object"
+                            ],
+                            "properties": {
+                                "object": {
+                                    "type": "object",
+                                    "description": "Any JavaScript object, array, or primitive value to serialize. Supports nested objects, arrays, strings, numbers, booleans, and null values. Complex data structures are fully preserved in the resulting JSON string.",
+                                    "example": {
+                                        "user": {
+                                            "id": 12345,
+                                            "name": "Alice Johnson",
+                                            "email": "alice@example.com",
+                                            "active": true,
+                                            "roles": [
+                                                "admin",
+                                                "user"
+                                            ],
+                                            "metadata": {
+                                                "lastLogin": "2025-06-19T10:30:00Z",
+                                                "preferences": {
+                                                    "theme": "dark",
+                                                    "notifications": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "example": {
+                                "object": {
+                                    "user": {
+                                        "id": 12345,
+                                        "name": "Alice Johnson",
+                                        "email": "alice@example.com",
+                                        "active": true,
+                                        "roles": [
+                                            "admin",
+                                            "user"
+                                        ],
+                                        "metadata": {
+                                            "lastLogin": "2025-06-19T10:30:00Z",
+                                            "preferences": {
+                                                "theme": "dark",
+                                                "notifications": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully serialized object to JSON string",
+                        "schema": {
+                            "type": "string",
+                            "title": "Serialized JSON String",
+                            "description": "A JSON string representation of the input object"
+                        },
+                        "examples": {
+                            "text/plain": "{\"user\":{\"id\":12345,\"name\":\"Alice Johnson\",\"email\":\"alice@example.com\",\"active\":true,\"roles\":[\"admin\",\"user\"],\"metadata\":{\"lastLogin\":\"2025-06-19T10:30:00Z\",\"preferences\":{\"theme\":\"dark\",\"notifications\":true}}}}"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing or invalid object parameter",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string",
+                                    "example": "Missing required parameter 'object'. Please provide an object to serialize."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing API key"
+                    },
+                    "500": {
+                        "description": "Internal server error during serialization"
+                    }
+                }
+            }
+        },
+        "/deserialize": {
+            "post": {
+                "tags": [
+                    "JSON Tools"
+                ],
+                "summary": "Deserialize JSON String",
+                "x-ntx-summary": "Deserialize from JSON",
+                "x-ntx-sublabel": "Convert a JSON string back into a structured object with optional validation.",
+                "description": "Converts a JSON string back into a structured object that can be used in workflows and applications. This endpoint supports optional schema validation using a sample object, enabling type-safe deserialization and validation. Perfect for processing API responses, configuration data, and stored JSON documents.",
+                "operationId": "deserialize",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "parameters",
+                        "required": true,
+                        "description": "JSON string to deserialize with optional sample for schema validation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "value",
+                                "sample"
+                            ],
+                            "properties": {
+                                "value": {
+                                    "type": "string",
+                                    "description": "A valid JSON string to parse and convert back into an object. Must be properly formatted JSON with balanced brackets and quotes.",
+                                    "example": "{\"name\": \"Bob Smith\", \"age\": 25, \"skills\": [\"JavaScript\", \"Python\"], \"active\": true}"
+                                },
+                                "sample": {
+                                    "type": "string",
+                                    "description": "Optional sample JSON string that defines the expected structure and types. When provided, the deserialized result will be validated against this schema to ensure type safety and structure compliance.",
+                                    "example": "{\"name\": \"string\", \"age\": 0, \"skills\": [\"string\"], \"active\": false}"
+                                }
+                            },
+                            "example": {
+                                "value": "{\"name\": \"Bob Smith\", \"age\": 25, \"skills\": [\"JavaScript\", \"Python\"], \"active\": true}",
+                                "sample": "{\"name\": \"string\", \"age\": 0, \"skills\": [\"string\"], \"active\": false}"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deserialized JSON string to object",
+                        "schema": {
+                            "type": "object",
+                            "title": "Deserialized Object",
+                            "description": "The parsed object from the JSON string",
+                            "x-ntx-dynamic-schema": {
+                                "operationId": "generate_schema",
+                                "parameters": {
+                                    "json": {
+                                        "parameter": "parameters"
+                                    },
+                                    "treatAllAsStrings": true,
+                                    "treatAllAsRequired": false
+                                },
+                                "value-path": "schema"
+                            }
+                        },
+                        "examples": {
+                            "application/json": {
+                                "name": "Bob Smith",
+                                "age": 25,
+                                "skills": [
+                                    "JavaScript",
+                                    "Python"
+                                ],
+                                "active": true
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON string or missing parameters",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string",
+                                    "example": "Invalid JSON string in 'value' parameter. Unable to deserialize."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing API key"
+                    },
+                    "500": {
+                        "description": "Internal server error during deserialization"
+                    }
+                }
+            }
+        },
+        "/merge": {
+            "post": {
+                "tags": [
+                    "JSON Tools"
+                ],
+                "summary": "Merge Objects",
+                "x-ntx-summary": "Merge Data",
+                "x-ntx-sublabel": "Combine data with templates using object merging or placeholder replacement.",
+                "description": "Merges data with an existing template object and returns the result as a serialized JSON string. The template can be either a JSON object (for object merging) or a plain text string with {{placeholder}} syntax for template replacement. Data should be a JSON object containing the values to merge or replace placeholders with.",
+                "operationId": "merge",
+                "x-ntx-visibility": "public",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "parameters",
+                        "required": true,
+                        "description": "Template and data to merge",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "template",
+                                "data"
+                            ],
+                            "properties": {
+                                "template": {
+                                    "type": "string",
+                                    "description": "A template - either an object as JSON string, or plain text with {{placeholder}} syntax. This will define the structure of the result."
+                                },
+                                "data": {
+                                    "type": "string",
+                                    "description": "The data to merge. Should be in JSON format with keys that match the template object's properties or placeholder names."
+                                }
+                            },
+                            "example": {
+                                "template": "{\"user\": {\"name\": \"{{userName}}\", \"email\": \"{{userEmail}}\", \"status\": \"active\"}}",
+                                "data": "{\"userName\": \"John Doe\", \"userEmail\": \"john@example.com\"}"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully merged template and data",
+                        "schema": {
+                            "type": "string",
+                            "description": "The merged result as a JSON string or processed template"
+                        },
+                        "examples": {
+                            "application/json": "{\"user\":{\"name\":\"John Doe\",\"email\":\"john@example.com\",\"status\":\"active\"}}"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON, missing template or data",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing API key"
+                    },
+                    "500": {
+                        "description": "Internal server error during merge operation"
+                    }
+                }
+            }
+        },
+        "/join": {
+            "post": {
+                "tags": [
+                    "JSON Tools"
+                ],
+                "summary": "Join Objects",
+                "x-ntx-summary": "Join JSON Objects",
+                "x-ntx-sublabel": "Combine two JSON objects into one, with the second overriding matching properties.",
+                "description": "Joins two JSON strings into a single object and returns a JSON string. This endpoint combines two JSON objects by merging their properties. If both objects have the same property, the second object's value will override the first object's value.",
+                "operationId": "join",
+                "x-ntx-visibility": "public",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "parameters",
+                        "required": true,
+                        "description": "Two JSON strings to join",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "first": {
+                                    "type": "string",
+                                    "description": "The first JSON object as a string. This will be the base object."
+                                },
+                                "second": {
+                                    "type": "string",
+                                    "description": "The second JSON object as a string. Properties from this object will override properties in the first object if they have the same key."
+                                }
+                            },
+                            "example": {
+                                "first": "{\"name\": \"John\", \"age\": 30, \"city\": \"New York\"}",
+                                "second": "{\"age\": 31, \"country\": \"USA\"}"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully joined the two JSON objects",
+                        "schema": {
+                            "type": "string",
+                            "description": "The joined result as a JSON string"
+                        },
+                        "examples": {
+                            "application/json": "{\"name\":\"John\",\"age\":31,\"city\":\"New York\",\"country\":\"USA\"}"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON strings or missing required properties",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing API key"
+                    },
+                    "500": {
+                        "description": "Internal server error during join operation"
+                    }
+                }
+            }
+        },
+        "/add-property": {
+            "post": {
+                "tags": [
+                    "JSON Tools"
+                ],
+                "summary": "Add Property",
+                "x-ntx-summary": "Add JSON Property",
+                "x-ntx-sublabel": "Add a new property with a specified value to an existing JSON object.",
+                "description": "Adds a property to a JSON object (provided as a string) and returns the updated object as a JSON string. This endpoint is useful for dynamically adding properties to existing JSON objects in workflows, configuration management, and data transformation processes.",
+                "operationId": "add_property",
+                "x-ntx-visibility": "public",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "parameters",
+                        "required": true,
+                        "description": "JSON object string, property name, and value to add",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "json",
+                                "key",
+                                "value"
+                            ],
+                            "properties": {
+                                "json": {
+                                    "type": "string",
+                                    "description": "The JSON object as a string to which the property will be added. Must be a valid JSON object (not array or primitive)."
+                                },
+                                "key": {
+                                    "type": "string",
+                                    "description": "The name of the property to add to the JSON object."
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "description": "The value for the new property. Can be a JSON string (will be parsed) or a literal string value."
+                                }
+                            },
+                            "example": {
+                                "json": "{\"name\": \"John Doe\", \"age\": 30}",
+                                "key": "email",
+                                "value": "john@example.com"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully added property to JSON object",
+                        "schema": {
+                            "type": "string",
+                            "description": "The updated JSON object as a string with the new property added"
+                        },
+                        "examples": {
+                            "application/json": "{\"name\":\"John Doe\",\"age\":30,\"email\":\"john@example.com\"}"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON, missing required properties, or invalid parameters",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing API key"
+                    },
+                    "500": {
+                        "description": "Internal server error during property addition"
+                    }
+                }
+            }
+        },
+        "/to-xml": {
+            "post": {
+                "tags": [
+                    "JSON Tools"
+                ],
+                "summary": "Convert JSON to XML",
+                "x-ntx-summary": "JSON to XML",
+                "x-ntx-sublabel": "Transform JSON data into XML format with optional encoding for safe transmission.",
+                "description": "Converts a JSON string to XML format with optional encoding. This endpoint transforms JSON data into XML structure, making it compatible with XML-based systems and workflows. Supports optional XML encoding for safe transmission and storage.",
+                "operationId": "to_xml",
+                "x-ntx-visibility": "public",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "parameters",
+                        "required": true,
+                        "description": "JSON string to convert to XML with optional encoding",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "serializedJson"
+                            ],
+                            "properties": {
+                                "serializedJson": {
+                                    "type": "string",
+                                    "description": "The JSON string to convert to XML format. Must be valid JSON that can be transformed into XML structure."
+                                },
+                                "encode": {
+                                    "type": "boolean",
+                                    "description": "Optional parameter to encode the XML string for safe transmission. Defaults to false.",
+                                    "default": false
+                                }
+                            },
+                            "example": {
+                                "serializedJson": "{\"user\": {\"name\": \"John Doe\", \"age\": 30, \"active\": true}}",
+                                "encode": false
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully converted JSON to XML",
+                        "schema": {
+                            "type": "string",
+                            "description": "The XML representation of the JSON data"
+                        },
+                        "examples": {
+                            "application/xml": "<user><name>John Doe</name><age>30</age><active>true</active></user>"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON string or missing required parameters",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid or missing API key"
+                    },
+                    "500": {
+                        "description": "Internal server error during JSON to XML conversion"
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "apiKey": {
+            "type": "apiKey",
+            "name": "x-functions-key",
+            "in": "header",
+            "description": "API key for authentication. Use your Azure Functions master key or a function-specific key."
+        }
+    },
+    "definitions": {
+        "ErrorResponse": {
+            "type": "object",
+            "required": [
+                "error"
+            ],
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "description": "Human-readable error message describing what went wrong"
+                }
+            },
+            "example": {
+                "error": "Invalid JSON format in request body"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "JSON Tools",
+            "description": "Comprehensive JSON manipulation and transformation utilities for workflow automation. These endpoints provide essential functionality for processing, validating, and converting JSON data in enterprise workflows."
+        }
+    ],
+    "x-ntx-contract-id": "6ce01850-b46f-4510-ba31-68c81a98795c",
+    "x-ntx-contract-icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAC0BJREFUeF7tnXt0FNUdxz+/2U14+KiAUo9ia6mVUqiPIz2+Ti2+2oKKZFeokhdoC1Y5WPGoB2s1pdZnaRUfCFUw2QQtMRPFKq1SXy3WnqpHrai1ktpaz6kGA0cRDezur9xNCCQ7m53ZnXQ3Ye6fO7/7e3y/c2fu3N/v3hWCVlAEpKDWA+MEBBT4JggICAgoMAIFNh+MgICAAiNQYPPBCAgIKDACBTYfjICAgAIjUGDz/o+AKffuQ3jQtaDfAfFff0EAUwX5PaHSGhqnb/HTBX8AmlZ7MHEZg7AE5HA/HSxCXRtIyhxKEm/SWP1evv7lR8C0VaUk2yej1ABH5utMv+ov8jLKQkKlj9I4fVuuvudHQLR+FaqnA/vl6kA/77cZ1Sdorpqeaxy5EXDWyv0pia8BmZCr4QHVT3mReOi7PDJjo9e4vBNwRsMwBuky0AhgeTU4QOWTIDbtMptHyzd5idE7AWWxWQhLgRIvhvYA2e1gzcYuv89LrN4IOPf+Q9gW/7cXA3ucbCL8BR4+7123cXshQCiLPYPwTbfK90w5eRa7YiLsmBu6aO4JiNSXgS7fg2c8LuBMiWwGOR+7otlNB5cEqLn7f4bIj90oDWTkOuzya0CyjgJ3BKSmnYmVgJnzBy0bAsrjkJxBc/WH2UTdEVBWNxbz5Qel2RQG11MIbEP1KJqr3siGhzsCoveNQ0OvZVMWXN8NAUmMp2nm+myYFJqAFgQbTX6SclStoQiXZ3M6r+vCL7rsEdq784PyS3npdOpc5ARsRcLfQpOttB30Hk+fHE/FMG1ViET7GcDDvgPSofBs2kY91mVv4lNh9ntnFFgjCVnPoAz2zW6REtCOyFK2t1/N6gs+dgz2rKVDKRmyGOQC38DoUHQv27fO45E5Wx31Tnl4H0o+vgHVH/jyritKAkQWYJX+MuvybaS2Bqxr/SUg+VPsarNsnrlNWjyIIcPng16ft+3iI0Dvpe2QC7uGf6YIU1Pe5P2gp+UNQjcFupbt4fOyrliax9Lwd5eDVOZlv8gI+JAQx9FY+XaGoIRJj5Wyd+vn2S6nY8k9eQWfqbNyPsnwWra1fsCaeSaJ4vyhFG34Cpp4HmR4zn4UFQHKLWzacBVP13S8bHdvU2PnYTEWGAFyCuhXcw7aXcc3EH0SrA9RXseu+E1at45RcCPIZe5UOkgVEQFbUebSXLkizc1o7Ieo3gSyT86B5tNR+AhNLsCuvitNTST2fWAxMCQnE0VEwDah5ElpCeypKw7FCj8J+D8H94bYBrBOxS7/V7duHUvvz+TsX/EQIOuxK8an3/1F9HWdCaxI/Wug47zx2SkdEOABtoAAD2D1hWhAQF+g6kFnQIAHsPpCNCCgL1D1oDMgwANYfSEaENAXqHrQObAJYDV25dn98zsgZvISUzxQuUu0KL4DVO6kuWKuYwDFlObsDayyujsQudgzCUVAwDL2jV/CfbM+c3S+rOFKJHmj58D6pINeiV11s6PqmSsG81H4NmC2J9MFJqAVrO9hlz/l4LQQbTgMTb6VIaAkYHLEe2Ut/pWUnFlUNrK9tew6xTqcpnKzXJ6+RB1pOBmSZtX0ANckFJYA/TN21QnpzpoCr/rTEBoyBPMg6EuIvIPqocB4kBnpeqQN0eWotR4SZifUOFTOB3Vav28AXd+hUw4FPQaIOgDZilJOc8Vax4KqSN1zO7YpHd9PCJBzHdfZo7VHo9bjwP5pgSirCA+aS+P01q5rU1fsh5Ua/lXd5FUnsqllXVd+wazfD3v3RESe7iYn1JKI/4iHZm3u+r2sbiSWdTuqTpsqNhKyTqex3NRAdW/R2HSU9NxBJkYKOgLsCsv5LoplKtUzt/FV2BXpz+Fo7BIU8/vOorBW7MqRjnFHYh/sNrJMcdTlNFeZNf3uLVJ/RWfeN+Cox650KNdRIVJvHmXuWmEJcAoAiGQiQNsQKmmqeiwturKVxyMJGziw89o92JWmciG9RWK/BkwixbT3IRHFnrkuXWftmWDVIQxzT0Bv/jto6V8E0I7qZTRX3Zl+t9bNALkb6Miaif6TpqrRjsBFYy1oV4LnU2AedmV6frms4VIkeVPGTSaOI6A/EWDJaTxY8Yd0MGPmo6Y2Q4n7XXw6Yj5rJrd39TNlIkOHL0K1+zxc9WtpdZcd9auv97C5hH3j87tNhU3dUalet3bW//R00bwrqrErV6f5fk79qSR1rbvnj7lRClua+AR25bfTnJ29tISNe03bkYC/3WHGYt4PS9BQPeHwi7R/dgQl1kxULwR6PqvNjOVmwtazKRvx5EkIV2SYWS1BWQf6CsIEkOOAOelAShuq8zhg7CqWTdjucPOYyYP76vACE/AfQjKZxoq/pQUysSbMiNHHoPJ8hrvpv8AmkM+BHtTLHWcqLHbOmMz8PNyLrNndvjn1zM/4zSDH0/b2C46VG9Pqv05CzftpVH8ZAWZufidb2y5jzbxdj5TdvY/W35a644qhqSymueISR1cyPQaz+V3gEWDcS6B6C81VC5xfmCvHoYniKHmX0HiaZjiXkpfV3YCIqdh2nrJmIqIICEg9nRF5gKaK9DK//rAYF43FUM7N8nhzpqBICDDTgaAspZfH1f9hg0ZAQG+vi4CA1Mddhjl7UJiVbarh0/WAAJ+AzFVNQECuyPnULyDAJyBzVRMQkCtyPvUb2ASwgXjoRFbPeL8bXGYbEMm/oBnW5H3CNqsaMetO1rE0lf+jm+zkFQcyOPwn4MtZdTgJFM+HGFtA5mBXmLMmurdI/UWILvJ1f64ntLQdxTkPURYrRzB5iL09qdwpXEQEgOrPObLlGmpqeqT0VIjWX4iqOeryaJBvAENzCth9p09RXsDiJVTewi43R212T5XW1Fi8MnphXqfDFBUB8B5YJ2GXtzjiZPIErUOGEZZhxJmNMN89nh4klduw4neTDLURHrw5437lyPLREH4W5CAP2ruLFhkBIMkFNFVnL8Qyh8Amrd+iHJVz8I7PZHkZK3Gmq8NWo7HLOwsBcneh6AgwoYjMpakiPe/b496hrK4GkWtyj96hp+pCmqvMTvneD1GK1l+M6h152y5KAtB2xKphxCeLWDYnPe1nojan8cY/uwURn5M1civ7f3JFL3ZDxNsvRfQ6kEEDlIDOsMzhT3HKKd3WSuOsjd1egufUTyKpj3hOgGRFTOI7XrxTeLBizS5RU6lXNxxkJEgMwVTN+dOKcwTsHpvEIflHsNZBIrHrimV2p+c29csO3RZILtrNloVyLMLJvp+DWvwEZEerX0v4SkDZA2OR7a/mlJrr1yjm7Hwc1SP8OzNu2ooDiYdsxEN1cM6+D4iOzxEPRdKWXxxCc5cRM1+Gr442swPnCocBgZmfQegNHNFydfqXf7oNdwSYfpG6mYjc4WIzhJ+R9D9dZtOI6lzsKleHeLsn4JilJXxx6F/3uH/K8H4LvELbqAlZTwbbOSP3pH9KbAxh3vTUZ08T1uQYmqszbb9KQ8P9CNjZtSxm5tGXIsFf4fZAU1HrVzSXezplyzsBHX9fcj+Iz4fq9feh4vJQwB5heifAKJi26gCS7c+hHNbfYfPFf+FtrEEndNvf5lJxbgTsVB6Jmc1sY8DHE2ddOl4kYmYP9N+xK3NeOs+PgI5/zatE9Cdo1x6uIsGmz914H2Qh8fZYxlOAXbiQHwEpAypMrR2NWKek9gQM/D/3McvoF5FMPMVD1S1u/qShNx58IKCH+nNqJ5EMmcRH5+51tVIk9ctmcsXSkccW3UKSGporf+dnKH0PjMn3biv1trnBzwjz0VW6LZExgZOP3t369j0BPjk6UNUEBBSY2YCAgIACI1Bg88EICAgoMAIFNh+MgAIT8D/tTBGsSo+4UgAAAABJRU5ErkJggg=="
+}
