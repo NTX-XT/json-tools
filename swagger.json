@@ -20,7 +20,7 @@
     ],
     "security": [
         {
-            "apiKey": []
+            "function-key": []
         }
     ],
     "paths": {
@@ -565,7 +565,7 @@
         }
     },
     "securityDefinitions": {
-        "apiKey": {
+        "function-key": {
             "type": "apiKey",
             "name": "x-functions-key",
             "in": "header",

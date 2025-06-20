@@ -101,16 +101,20 @@ export async function Merge(request: HttpRequest, context: InvocationContext): P
             }
         } else {
             data = requestData.data;
-        }
-
-        // Perform the merge
+        }        // Perform the merge
         let result;
         if (typeof template === 'string') {
             // Template is plain text - perform string replacement
             result = performStringTemplateReplacement(template, data);
         } else if (typeof template === 'object' && template !== null) {
-            // Template is an object - merge objects
-            result = mergeObjects(template, data);
+            // Template is an object - check if it's field substitution or object merge
+            if (isFieldSubstitutionTemplate(template, data)) {
+                // Perform field substitution (mail-merge)
+                result = performFieldSubstitution(template, data);
+            } else {
+                // Perform traditional object merge
+                result = mergeObjects(template, data);
+            }
         } else {
             return {
                 status: 400,
@@ -207,6 +211,56 @@ function mergeObjects(template: any, data: any): any {
                 // Override with data value
                 result[key] = data[key];
             }
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Determines if the template should use field substitution instead of object merging
+ * Field substitution is used when template values are strings that match keys in the data object
+ */
+function isFieldSubstitutionTemplate(template: any, data: any): boolean {
+    if (typeof template !== 'object' || template === null || 
+        typeof data !== 'object' || data === null) {
+        return false;
+    }
+    
+    // Check if most template values are strings that exist as keys in data
+    const templateValues = Object.values(template);
+    const dataKeys = Object.keys(data);
+    let matchingKeys = 0;
+    let nonEmptyStringValues = 0;
+    
+    for (const value of templateValues) {
+        if (typeof value === 'string' && value.trim() !== '') {
+            nonEmptyStringValues++;
+            if (dataKeys.includes(value)) {
+                matchingKeys++;
+            }
+        }
+    }
+    
+    // If at least 50% of non-empty string values in template are keys in data, 
+    // assume this is field substitution
+    return nonEmptyStringValues > 0 && (matchingKeys / nonEmptyStringValues) >= 0.5;
+}
+
+/**
+ * Performs field substitution (mail-merge) operation
+ * Replaces template field values with corresponding data values when the template value is a key in data
+ */
+function performFieldSubstitution(template: any, data: any): any {
+    const result: any = {};
+    
+    for (const [key, value] of Object.entries(template)) {
+        if (typeof value === 'string' && value.trim() !== '' && data.hasOwnProperty(value)) {
+            // Template value is a key in data - substitute with data value
+            result[key] = data[value];
+        } else {
+            // Keep original template value (handles empty strings, non-matching keys, etc.)
+            result[key] = value;
         }
     }
     
